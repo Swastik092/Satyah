@@ -43,14 +43,6 @@ const partners = [
     description: 'Comprehensive evaluation of development programs and their long-term social and economic impacts.',
     impact: 'Optimized program delivery across 20+ countries',
   },
-  {
-    id: 6,
-    name: 'Academic Consortium',
-    logo: '🎓',
-    project: 'Research Methodology Development',
-    description: 'Development of advanced research methodologies for cross-disciplinary academic studies.',
-    impact: 'Adopted by 30+ universities worldwide',
-  },
 ]
 
 const Partners = () => {

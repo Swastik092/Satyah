@@ -27,6 +27,11 @@ const services = [
     title: 'Strategic Planning',
     description: 'Data-driven strategic planning that aligns organizational goals with actionable roadmaps for success.',
   },
+  {
+    icon: '📋',
+    title: 'Monitoring & Evaluation (M&E)',
+    description: 'Comprehensive monitoring and evaluation frameworks to track program effectiveness and measure long-term impact.',
+  },
 ]
 
 const Services = () => {

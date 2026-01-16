@@ -1,58 +1,132 @@
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
 import './Hero.css'
 
 const Hero = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 })
+  const heroRef = useRef(null)
+  const buttonRef = useRef(null)
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect()
+        setMousePosition({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+        })
+      }
+    }
+
+    const handleButtonMouseMove = (e) => {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect()
+        const centerX = rect.left + rect.width / 2
+        const centerY = rect.top + rect.height / 2
+        const deltaX = (e.clientX - centerX) * 0.15
+        const deltaY = (e.clientY - centerY) * 0.15
+        setButtonPosition({ x: deltaX, y: deltaY })
+      }
+    }
+
+    const handleButtonMouseLeave = () => {
+      setButtonPosition({ x: 0, y: 0 })
+    }
+
+    const hero = heroRef.current
+    const button = buttonRef.current
+
+    if (hero) {
+      hero.addEventListener('mousemove', handleMouseMove)
+    }
+
+    if (button) {
+      button.addEventListener('mousemove', handleButtonMouseMove)
+      button.addEventListener('mouseleave', handleButtonMouseLeave)
+    }
+
+    return () => {
+      if (hero) hero.removeEventListener('mousemove', handleMouseMove)
+      if (button) {
+        button.removeEventListener('mousemove', handleButtonMouseMove)
+        button.removeEventListener('mouseleave', handleButtonMouseLeave)
+      }
+    }
+  }, [])
+
   return (
-    <section className="hero">
+    <section className="hero" ref={heroRef}>
+      {/* Interactive Backgrounds */}
       <div className="hero-background">
-        <div className="hero-gradient"></div>
-        <div className="hero-waves">
-          <svg viewBox="0 0 1200 600" preserveAspectRatio="none">
-            <motion.path
-              d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z"
-              fill="rgba(192, 192, 192, 0.1)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 2, ease: "easeInOut" }}
-            />
-            <motion.path
-              d="M0,350 Q300,250 600,350 T1200,350 L1200,600 L0,600 Z"
-              fill="rgba(58, 90, 138, 0.08)"
-              initial={{ pathLength: 0, opacity: 0 }}
-              animate={{ pathLength: 1, opacity: 1 }}
-              transition={{ duration: 2, delay: 0.3, ease: "easeInOut" }}
-            />
-          </svg>
+        {/* Light Mode: Airy Mesh Gradient */}
+        <div className="hero-mesh-gradient"></div>
+        <div className="hero-grain-overlay"></div>
+
+        {/* Dark Mode: Star Field Particle System */}
+        <div className="hero-starfield">
+          {[...Array(50)].map((_, i) => {
+            const baseX = Math.random() * 100
+            const baseY = Math.random() * 100
+            const baseOpacity = Math.random() * 0.5 + 0.2
+            return (
+              <motion.div
+                key={i}
+                className="star"
+                style={{
+                  left: baseX + '%',
+                  top: baseY + '%',
+                }}
+                animate={{
+                  opacity: [
+                    baseOpacity,
+                    baseOpacity + 0.3,
+                    baseOpacity,
+                  ],
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{
+                  duration: Math.random() * 3 + 2,
+                  repeat: Infinity,
+                  delay: Math.random() * 2,
+                  ease: 'easeInOut',
+                }}
+              />
+            )
+          })}
         </div>
-        <div className="hero-pattern">
-          {[...Array(20)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="pattern-dot"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0, 0.2, 0],
-                scale: [0, 1, 0],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                delay: i * 0.15,
-                ease: "easeInOut",
-              }}
-            />
+
+        {/* Dark Mode: Bento Grid */}
+        <div className="hero-bento-grid">
+          {[...Array(12)].map((_, i) => (
+            <div key={i} className="bento-cell"></div>
           ))}
         </div>
+
+        {/* Cursor Glow (Dark Mode) */}
+        <div
+          className="hero-cursor-glow"
+          style={{
+            left: `${mousePosition.x}px`,
+            top: `${mousePosition.y}px`,
+          }}
+        ></div>
       </div>
 
-      <div className="hero-content">
+      {/* Glassmorphic Content Container */}
+      <motion.div
+        className="hero-glass-container"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+      >
         <motion.div
           className="hero-logo-container"
-          initial={{ opacity: 0, scale: 0.8, y: 30 }}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
         >
           <Logo size={140} />
         </motion.div>
@@ -63,7 +137,7 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          SATYAH
+          <span className="title-shimmer">SATYAH</span>
         </motion.h1>
 
         <motion.div
@@ -84,19 +158,22 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          <motion.div
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
+          <Link
+            to="/services"
+            className="cta-button"
+            ref={buttonRef}
+            style={{
+              transform: `translate(${buttonPosition.x}px, ${buttonPosition.y}px)`,
+            }}
           >
-            <Link to="/services" className="cta-button">
-              Explore Our Services
-            </Link>
-          </motion.div>
+            <span className="button-glint"></span>
+            <span className="button-text">Explore Our Services</span>
+          </Link>
         </motion.div>
-      </div>
+      </motion.div>
 
-      <motion.a
-        href="#services"
+      {/* Animated Mouse Scroll Indicator */}
+      <motion.div
         className="hero-scroll-indicator"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -109,21 +186,15 @@ const Hero = () => {
           }
         }}
       >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M7 10L12 15L17 10"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </motion.div>
-      </motion.a>
+        <div className="mouse-icon">
+          <div className="mouse-body"></div>
+          <motion.div
+            className="mouse-wheel"
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+          ></motion.div>
+        </div>
+      </motion.div>
     </section>
   )
 }
